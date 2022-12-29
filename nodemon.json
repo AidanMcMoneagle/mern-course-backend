@@ -1,0 +1,9 @@
+{
+  "env": {
+    "DB_USER": "Aidan_McMoneagle",
+    "DB_PASSWORD": "1WNCy3DVxvxc0Rb5",
+    "DB_NAME": "mernDB",
+    "GOOGLE_API_KEY": "AIzaSyAHPkyL3pTxoSgsN3cwS7UPjYqtEeMQwEg",
+    "JWT_KEY": "supersecret_dont_share"
+  }
+}
