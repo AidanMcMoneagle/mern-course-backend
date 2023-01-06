@@ -2,6 +2,7 @@ const { v4: uuidv4 } = require("uuid");
 const { validationResult } = require("express-validator");
 const mongoose = require("mongoose");
 const fs = require("fs"); //fs module allows us to interact with files on the server
+const { cloudinary } = require("../cloudinary/cloudinary");
 
 const HttpError = require("../models/http-error");
 const getCoordsForAddress = require("../utils/location");
@@ -79,12 +80,17 @@ const createPlace = async (req, res, next) => {
     return next(error);
   }
 
-  const imagePath = req.file.path.replace(/\\/g, "/");
+  console.log(req.file);
+
+  //multer will store image on req.file
 
   const createdPlace = new Place({
     title,
     description,
-    image: imagePath,
+    image: {
+      path: req.file.path,
+      filename: req.file.filename,
+    },
     address,
     location: coordinates,
     creator: req.userData.userId,
@@ -217,7 +223,7 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
-  const imagePath = place.image;
+  const imageFileName = place.image.filename;
 
   try {
     const sess = await mongoose.startSession();
@@ -234,10 +240,12 @@ const deletePlace = async (req, res, next) => {
     return next(error);
   }
 
-  // deletes image file from server once we delete a place.
-  fs.unlink(imagePath, (err) => {
-    console.log(err);
-  });
+  // we want to delete images from cloudinary once we delete a place.
+  try {
+    await cloudinary.uploader.destroy(imageFileName);
+  } catch (e) {
+    console.log("COULD NOT DELETE IMAGE FROM CLOUDINARY");
+  }
 
   res.status(200).json({ message: "DELETED PLACE" });
 };

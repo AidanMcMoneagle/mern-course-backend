@@ -57,13 +57,14 @@ const signup = async (req, res, next) => {
     next(error);
   }
 
-  const imagePath = req.file.path.replace(/\\/g, "/");
-
   const createdUser = new User({
     name,
     email,
     password: hashedPassword,
-    image: imagePath,
+    image: {
+      path: req.file.path,
+      filename: req.file.filename,
+    },
     places: [],
   });
 

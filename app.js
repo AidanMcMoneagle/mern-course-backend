@@ -11,13 +11,7 @@ const userRoutes = require("./routes/user-routes");
 
 const app = express();
 
-//on every request parses req.body
 app.use(bodyParser.json()); // on every request parses the req.body and extracts json data and converts to regualr JS data structure. Will then call next automatically
-
-app.use(
-  "/uploads/images",
-  express.static(path.join(__dirname, "uploads/images"))
-);
 
 // attach headers to every response we send (to eliminate CORS error). Later when send a response from more specific routes we already have the headers attached.
 app.use((req, res, next) => {
@@ -44,12 +38,14 @@ app.use((req, res, next) => {
 });
 
 // default error handler. error handling middleware function. function will run when any middleware infront throws an error.
-app.use((error, req, res, next) => {
+app.use(async (error, req, res, next) => {
   // if there has been an error whilst signing up we want to remove the file (image) that has been added. Multer adds a file property to request object
   if (req.file) {
-    fs.unlink(req.file.path, (err) => {
-      console.log(err);
-    });
+    try {
+      await cloudinary.uploader.destroy(req.file.filename);
+    } catch (e) {
+      console.log("Could not delete image from cloudinary");
+    }
   }
   if (res.headerSent) {
     return next(err);
