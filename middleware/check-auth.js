@@ -17,6 +17,7 @@ module.exports = (req, res, next) => {
     }
     // jwt.verify returns payload decoded if signature is valid. If signature not valid will throw an error.
     const decodedToken = jwt.verify(token, process.env.JWT_KEY);
+    // req.userData is stored in the DB when we
     req.userData = { userId: decodedToken.userId };
     next();
   } catch (err) {
